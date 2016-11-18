@@ -8,6 +8,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Log;
+
 import com.example.android.pets.data.PetContract.PetEntry;
 
 /**
@@ -43,7 +45,7 @@ public class PetProvider extends ContentProvider {
 
         Cursor cursor;
 
-        int match = sUriMatcher.match(uri);
+        final int match = sUriMatcher.match(uri);
         switch (match) {
             case PETS:
                 cursor = database.query(PetEntry.TABLE_NAME, projection, selection, selectionArgs,
@@ -72,7 +74,27 @@ public class PetProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        return null;
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case PETS:
+                return insertPet(uri, values);
+
+            default:
+                throw new IllegalArgumentException("Insertion is not supported for " + uri);
+        }
+    }
+
+    private Uri insertPet (Uri uri, ContentValues values) {
+        SQLiteDatabase database = mPetDbHelper.getWritableDatabase();
+
+        long id = database.insert(PetEntry.TABLE_NAME, null, values);
+
+        if (id == -1) {
+            Log.e(LOG_TAG, "Failed to insert row for " + uri);
+            return null;
+        }
+
+        return ContentUris.withAppendedId(uri, id);
     }
 
     @Override
