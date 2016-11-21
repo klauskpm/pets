@@ -16,6 +16,7 @@
 package com.example.android.pets;
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -28,6 +29,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.android.pets.data.PetContract.PetEntry;
@@ -52,8 +54,7 @@ public class CatalogActivity extends AppCompatActivity implements
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
-                startActivity(intent);
+                startEditorActivity(null);
             }
         });
 
@@ -64,12 +65,26 @@ public class CatalogActivity extends AppCompatActivity implements
         View emptyView = findViewById(R.id.empty_view);
         petListView.setEmptyView(emptyView);
 
-        getLoaderManager().initLoader(PET_LOADER, null, this);
-
         mAdapter = new PetCursorAdapter(this);
 
         // Attach the adapter to the ListView.
         petListView.setAdapter(mAdapter);
+
+        petListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Uri uri = ContentUris.withAppendedId(PetEntry.CONTENT_URI, id);
+                startEditorActivity(uri);
+            }
+        });
+
+        getLoaderManager().initLoader(PET_LOADER, null, this);
+    }
+
+    private void startEditorActivity(Uri uri) {
+        Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
+        if (uri != null) intent.setData(uri);
+        startActivity(intent);
     }
 
     /**
