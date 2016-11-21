@@ -50,8 +50,8 @@ public class EditorActivity extends AppCompatActivity {
     /** EditText field to enter the pet's gender */
     private Spinner mGenderSpinner;
 
-    public static final String EDIT_TITLE = "Edit Pet";
-    public static final String ADD_TITLE = "Add Pet";
+    public static final int EDIT_TITLE = R.string.editor_activity_title_edit_pet;
+    public static final int ADD_TITLE = R.string.editor_activity_title_new_pet;
 
     /**
      * Gender of the pet. The possible valid values are in the PetContract.java file:
@@ -67,11 +67,11 @@ public class EditorActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Uri uri = intent.getData();
-        String actionBarTitle = ADD_TITLE;
+        int actionBarTitle = ADD_TITLE;
 
         if (uri != null) actionBarTitle = EDIT_TITLE;
 
-        getSupportActionBar().setTitle(actionBarTitle);
+        setTitle(getString(actionBarTitle));
 
         // Find all relevant views that we will need to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_pet_name);
