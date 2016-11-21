@@ -136,22 +136,7 @@ public class EditorActivity extends AppCompatActivity implements
     /**
      * Get user input from editor and save new pet into database.
      */
-    private void insertPet() {
-        // Read from input fields
-        // Use trim to eliminate leading or trailing white space
-        String nameString = mNameEditText.getText().toString().trim();
-        String breedString = mBreedEditText.getText().toString().trim();
-        String weightString = mWeightEditText.getText().toString().trim();
-        int weight = Integer.parseInt(weightString);
-
-        // Create a ContentValues object where column names are the keys,
-        // and pet attributes from the editor are the values.
-        ContentValues values = new ContentValues();
-        values.put(PetEntry.COLUMN_PET_NAME, nameString);
-        values.put(PetEntry.COLUMN_PET_BREED, breedString);
-        values.put(PetEntry.COLUMN_PET_GENDER, mGender);
-        values.put(PetEntry.COLUMN_PET_WEIGHT, weight);
-
+    private void insertPet(ContentValues values) {
         // Insert a new pet into the provider, returning the content URI for the new pet.
         Uri newUri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
 
@@ -167,7 +152,23 @@ public class EditorActivity extends AppCompatActivity implements
         }
     }
 
-    private void updatePet() {
+    private void updatePet(ContentValues values) {
+        // Insert a new pet into the provider, returning the content URI for the new pet.
+        int updatedRows = getContentResolver().update(mCurrentPetUri, values, null, null);
+
+        // Show a toast message depending on whether or not the insertion was successful
+        if (updatedRows == 0) {
+            // If the new content URI is null, then there was an error with insertion.
+            Toast.makeText(this, R.string.editor_update_pet_failed,
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            // Otherwise, the insertion was successful and we can display a toast.
+            Toast.makeText(this, R.string.editor_update_pet_successful,
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void savePet () {
         // Read from input fields
         // Use trim to eliminate leading or trailing white space
         String nameString = mNameEditText.getText().toString().trim();
@@ -183,19 +184,8 @@ public class EditorActivity extends AppCompatActivity implements
         values.put(PetEntry.COLUMN_PET_GENDER, mGender);
         values.put(PetEntry.COLUMN_PET_WEIGHT, weight);
 
-        // Insert a new pet into the provider, returning the content URI for the new pet.
-        int updatedRows = getContentResolver().update(mCurrentPetUri, values, null, null);
-
-        // Show a toast message depending on whether or not the insertion was successful
-        if (updatedRows == 0) {
-            // If the new content URI is null, then there was an error with insertion.
-            Toast.makeText(this, R.string.editor_update_pet_failed,
-                    Toast.LENGTH_SHORT).show();
-        } else {
-            // Otherwise, the insertion was successful and we can display a toast.
-            Toast.makeText(this, R.string.editor_update_pet_successful,
-                    Toast.LENGTH_SHORT).show();
-        }
+        if (mCurrentPetUri == null) insertPet(values);
+        else updatePet(values);
     }
 
     @Override
@@ -213,8 +203,7 @@ public class EditorActivity extends AppCompatActivity implements
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
                 // Save pet to database
-                if (mCurrentPetUri == null) insertPet();
-                else updatePet();
+                savePet();
                 // Exit activity
                 finish();
                 return true;
