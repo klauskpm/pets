@@ -94,5 +94,6 @@
 
     <string name="editor_delete_all_pets_successful">All pets deleted</string>
     <string name="editor_delete_all_pets_failed">Error with deleting all pets</string>
+    <string name="empty_summary">Unkown breed</string>
 
 </resources>
