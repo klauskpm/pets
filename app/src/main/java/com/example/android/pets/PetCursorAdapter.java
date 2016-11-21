@@ -16,8 +16,8 @@ import com.example.android.pets.data.PetContract;
 
 public class PetCursorAdapter extends CursorAdapter {
 
-    public PetCursorAdapter(Context context, Cursor c) {
-        super(context, c, 0);
+    public PetCursorAdapter(Context context) {
+        super(context, null, 0);
     }
 
     @Override
