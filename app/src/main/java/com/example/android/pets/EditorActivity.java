@@ -266,7 +266,9 @@ public class EditorActivity extends AppCompatActivity implements
      * Perform the deletion of the pet in the database.
      */
     private void deletePet() {
-        // TODO: Implement this method
+        int deletedRows = getContentResolver().delete(mCurrentPetUri, null, null);
+
+        if (deletedRows > 0) finish();
     }
 
     @Override
@@ -290,7 +292,7 @@ public class EditorActivity extends AppCompatActivity implements
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
-                // Do nothing for now
+                showDeleteConfirmationDialog();
                 return true;
             // Respond to a click on the "Up" arrow button in the app bar
             case android.R.id.home:
