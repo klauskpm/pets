@@ -15,13 +15,18 @@
  */
 package com.example.android.pets;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,7 +41,8 @@ import com.example.android.pets.data.PetContract.PetEntry;
 /**
  * Allows user to create a new pet or edit an existing one.
  */
-public class EditorActivity extends AppCompatActivity {
+public class EditorActivity extends AppCompatActivity implements
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     /** EditText field to enter the pet's name */
     private EditText mNameEditText;
@@ -49,6 +55,9 @@ public class EditorActivity extends AppCompatActivity {
 
     /** EditText field to enter the pet's gender */
     private Spinner mGenderSpinner;
+
+    private static final int PET_ID_LOADER = 1;
+    private Uri mCurrentPetUri;
 
     public static final int EDIT_TITLE = R.string.editor_activity_title_edit_pet;
     public static final int ADD_TITLE = R.string.editor_activity_title_new_pet;
@@ -66,10 +75,13 @@ public class EditorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_editor);
 
         Intent intent = getIntent();
-        Uri uri = intent.getData();
+        mCurrentPetUri = intent.getData();
         int actionBarTitle = ADD_TITLE;
 
-        if (uri != null) actionBarTitle = EDIT_TITLE;
+        if (mCurrentPetUri != null) {
+            actionBarTitle = EDIT_TITLE;
+            getLoaderManager().initLoader(PET_ID_LOADER, null, this);
+        }
 
         setTitle(getString(actionBarTitle));
 
@@ -185,5 +197,55 @@ public class EditorActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case PET_ID_LOADER:
+                String[] projection = {
+                        PetEntry._ID,
+                        PetEntry.COLUMN_PET_NAME,
+                        PetEntry.COLUMN_PET_BREED,
+                        PetEntry.COLUMN_PET_GENDER,
+                        PetEntry.COLUMN_PET_WEIGHT };
+
+                Log.d("logando", "onCreateLoader: " + mCurrentPetUri.toString());
+
+                return new CursorLoader(
+                        this,
+                        mCurrentPetUri,
+                        projection,
+                        null,
+                        null,
+                        null
+                );
+
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        data.moveToFirst();
+
+        int columnNameIndex = data.getColumnIndexOrThrow(PetEntry.COLUMN_PET_NAME);
+        int columnBreedIndex = data.getColumnIndexOrThrow(PetEntry.COLUMN_PET_BREED);
+        int columnGenderIndex = data.getColumnIndexOrThrow(PetEntry.COLUMN_PET_GENDER);
+        int columnWeightIndex = data.getColumnIndexOrThrow(PetEntry.COLUMN_PET_WEIGHT);
+
+        mNameEditText.setText(data.getString(columnNameIndex));
+        mBreedEditText.setText(data.getString(columnBreedIndex));
+        mGenderSpinner.setSelection(data.getInt(columnGenderIndex));
+        mWeightEditText.setText("" + data.getInt(columnWeightIndex));
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mNameEditText.setText("");
+        mBreedEditText.setText("");
+        mGenderSpinner.setSelection(0);
+        mWeightEditText.setText("");
     }
 }
