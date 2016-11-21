@@ -47,16 +47,24 @@ import com.example.android.pets.data.PetContract.PetEntry;
 public class EditorActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    /** EditText field to enter the pet's name */
+    /**
+     * EditText field to enter the pet's name
+     */
     private EditText mNameEditText;
 
-    /** EditText field to enter the pet's breed */
+    /**
+     * EditText field to enter the pet's breed
+     */
     private EditText mBreedEditText;
 
-    /** EditText field to enter the pet's weight */
+    /**
+     * EditText field to enter the pet's weight
+     */
     private EditText mWeightEditText;
 
-    /** EditText field to enter the pet's gender */
+    /**
+     * EditText field to enter the pet's gender
+     */
     private Spinner mGenderSpinner;
 
     private static final int PET_ID_LOADER = 1;
@@ -93,6 +101,8 @@ public class EditorActivity extends AppCompatActivity implements
         if (mCurrentPetUri != null) {
             actionBarTitle = EDIT_TITLE;
             getLoaderManager().initLoader(PET_ID_LOADER, null, this);
+        } else {
+            invalidateOptionsMenu();
         }
 
         setTitle(getString(actionBarTitle));
@@ -150,6 +160,17 @@ public class EditorActivity extends AppCompatActivity implements
         });
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        // If this is a new pet, hide the "Delete" menu item.
+        if (mCurrentPetUri == null) {
+            MenuItem menuItem = menu.findItem(R.id.action_delete);
+            menuItem.setVisible(false);
+        }
+        return true;
+    }
+
     /**
      * Get user input from editor and save new pet into database.
      */
@@ -185,7 +206,7 @@ public class EditorActivity extends AppCompatActivity implements
         }
     }
 
-    private void savePet () {
+    private void savePet() {
         // Read from input fields
         // Use trim to eliminate leading or trailing white space
         String nameString = mNameEditText.getText().toString().trim();
@@ -320,7 +341,7 @@ public class EditorActivity extends AppCompatActivity implements
                         PetEntry.COLUMN_PET_NAME,
                         PetEntry.COLUMN_PET_BREED,
                         PetEntry.COLUMN_PET_GENDER,
-                        PetEntry.COLUMN_PET_WEIGHT };
+                        PetEntry.COLUMN_PET_WEIGHT};
 
                 Log.d("logando", "onCreateLoader: " + mCurrentPetUri.toString());
 
