@@ -228,17 +228,29 @@ public class EditorActivity extends AppCompatActivity implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        data.moveToFirst();
+        if (data.moveToFirst()) {
+            int columnNameIndex = data.getColumnIndexOrThrow(PetEntry.COLUMN_PET_NAME);
+            int columnBreedIndex = data.getColumnIndexOrThrow(PetEntry.COLUMN_PET_BREED);
+            int columnGenderIndex = data.getColumnIndexOrThrow(PetEntry.COLUMN_PET_GENDER);
+            int columnWeightIndex = data.getColumnIndexOrThrow(PetEntry.COLUMN_PET_WEIGHT);
 
-        int columnNameIndex = data.getColumnIndexOrThrow(PetEntry.COLUMN_PET_NAME);
-        int columnBreedIndex = data.getColumnIndexOrThrow(PetEntry.COLUMN_PET_BREED);
-        int columnGenderIndex = data.getColumnIndexOrThrow(PetEntry.COLUMN_PET_GENDER);
-        int columnWeightIndex = data.getColumnIndexOrThrow(PetEntry.COLUMN_PET_WEIGHT);
+            mNameEditText.setText(data.getString(columnNameIndex));
+            mBreedEditText.setText(data.getString(columnBreedIndex));
+            mWeightEditText.setText("" + data.getInt(columnWeightIndex));
 
-        mNameEditText.setText(data.getString(columnNameIndex));
-        mBreedEditText.setText(data.getString(columnBreedIndex));
-        mGenderSpinner.setSelection(data.getInt(columnGenderIndex));
-        mWeightEditText.setText("" + data.getInt(columnWeightIndex));
+            int gender = data.getInt(columnGenderIndex);
+            switch (gender) {
+                case PetEntry.GENDER_MALE:
+                    mGenderSpinner.setSelection(PetEntry.GENDER_MALE);
+                    break;
+                case PetEntry.GENDER_FEMALE:
+                    mGenderSpinner.setSelection(PetEntry.GENDER_FEMALE);
+                    break;
+                default:
+                    mGenderSpinner.setSelection(0);
+                    break;
+            }
+        }
     }
 
     @Override
